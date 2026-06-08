@@ -1,0 +1,17 @@
+{
+  "name": "小小資安守護者",
+  "short_name": "資安守護者",
+  "description": "給國小中高年級學生的資訊安全教育遊戲",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#FDFBF7",
+  "theme_color": "#4A90E2",
+  "icons": [
+    {
+      "src": "./jelly_person.png",
+      "sizes": "241x241",
+      "type": "image/png"
+    }
+  ]
+}
