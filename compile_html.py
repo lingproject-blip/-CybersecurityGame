@@ -1754,7 +1754,7 @@ html_template = """<!DOCTYPE html>
             1. 點擊彈出的地鼠來答題。<br>
             2. 地鼠身上若是<b>「正確的資安或健康生活習慣」</b>，打擊它可<b>加 1 分</b> 🛡️。<br>
             3. 地鼠身上若是<b>「錯誤/危險的行為」</b>，打擊它會<b>扣 1 分</b> ❌。<br>
-            4. 遊戲限時 <b>30 秒</b>，看看你能拿幾分並順利登錄上傳成績！
+            4. 遊戲限時 <b>1 分鐘</b>，看看你能拿幾分並順利登錄上傳成績！
           </div>
         </div>
         <button class="btn-start-game" onclick="initiateGame('game4')">開始測驗</button>
@@ -1769,7 +1769,7 @@ html_template = """<!DOCTYPE html>
           </div>
           
           <div style="background: var(--bg-color); border: 2.5px solid var(--border-color); border-radius: 12px; padding: 12px 14px; width: 100%; display: flex; flex-direction: column; gap: 8px;">
-            <div style="font-size: 15px; font-weight: 900; color: #5D5240;">⏱️ 剩餘時間：<span id="game4-time-display" style="color: var(--primary-red-dark); font-size: 18px;">30 秒</span></div>
+            <div style="font-size: 15px; font-weight: 900; color: #5D5240;">⏱️ 剩餘時間：<span id="game4-time-display" style="color: var(--primary-red-dark); font-size: 18px;">60 秒</span></div>
             <div style="font-size: 15px; font-weight: 900; color: #5D5240;">🏆 當前得分：<span id="game4-score-display" style="color: var(--primary-green-dark); font-size: 18px;">0 分</span></div>
           </div>
           
@@ -1973,6 +1973,7 @@ html_template = """<!DOCTYPE html>
     let state = {
       studentName: "",
       googleAppScriptUrl: "",
+      game4BestScore: 0,
       gamesCompleted: {
         game1: false,
         game2: false,
@@ -2165,6 +2166,7 @@ html_template = """<!DOCTYPE html>
             state.game3 = parsed.game3 || state.game3;
             state.studentName = parsed.studentName || "";
             state.googleAppScriptUrl = parsed.googleAppScriptUrl || "";
+            state.game4BestScore = parsed.game4BestScore || 0;
             
             // Sync name input
             if (state.studentName) {
@@ -2260,6 +2262,7 @@ html_template = """<!DOCTYPE html>
         state.game1 = { currentScenario: 0, clickedSecrets: [], step: 1 };
         state.game2 = { currentPatient: 0, step: 1, selectedToxins: [], slots: {}, redAlertCount: 0 };
         state.game3 = { timeline: Array(14).fill(null), selectedActivityId: "eat", customActivityName: "自訂活動", retryCount: 0, step: 1 };
+        state.game4BestScore = 0;
         
         saveProgress();
         updateHomeProgressUI();
@@ -2448,6 +2451,8 @@ html_template = """<!DOCTYPE html>
         loadGame3Timeline();
         setupGame3Selector();
         updateGame3Stats();
+      } else if (gameId === 'game4') {
+        startGame4();
       }
       saveProgress();
     }
@@ -3617,7 +3622,7 @@ html_template = """<!DOCTYPE html>
     let game4TimerInterval = null;
     let game4SpawnInterval = null;
     let game4Score = 0;
-    let game4TimeLeft = 30;
+    let game4TimeLeft = 60;
 
     function startGame4() {
       document.getElementById('game4-screen-start').style.display = 'none';
@@ -3625,11 +3630,11 @@ html_template = """<!DOCTYPE html>
       document.getElementById('game4-screen-end').style.display = 'none';
 
       game4Score = 0;
-      game4TimeLeft = 30;
+      game4TimeLeft = 60;
       game4ActiveMoles.fill(null);
       
       document.getElementById('game4-score-display').textContent = "0 分";
-      document.getElementById('game4-time-display').textContent = "30 秒";
+      document.getElementById('game4-time-display').textContent = "60 秒";
       
       for (let i = 0; i < 9; i++) {
         const mole = document.getElementById('mole-' + i);
@@ -3656,6 +3661,15 @@ html_template = """<!DOCTYPE html>
         }
       }, 1100);
     }
+
+    function hideMole(index) {
+      const mole = document.getElementById('mole-' + index);
+      if (mole) mole.classList.remove('up');
+      game4ActiveMoles[index] = null;
+    }
+
+    // Expose hideMole globally so goHome() can safely call it
+    window.hideMole = hideMole;
 
     function spawnMole() {
       const emptyHoles = [];
@@ -3687,13 +3701,6 @@ html_template = """<!DOCTYPE html>
       };
     }
 
-    // Explicitly exposing globally so goHome or navigation can reference it safely
-    window.hideMole = function(index) {
-      const mole = document.getElementById('mole-' + index);
-      if (mole) mole.classList.remove('up');
-      game4ActiveMoles[index] = null;
-    };
-
     function whackMole(index) {
       const active = game4ActiveMoles[index];
       if (!active) return;
@@ -3720,7 +3727,7 @@ html_template = """<!DOCTYPE html>
       document.getElementById('game4-score-display').textContent = game4Score + " 分";
 
       setTimeout(() => {
-        window.hideMole(index);
+        hideMole(index);
       }, 500);
     }
 
@@ -3785,7 +3792,7 @@ html_template = """<!DOCTYPE html>
       
       for (let i = 0; i < 9; i++) {
         if (game4ActiveMoles[i]) clearTimeout(game4ActiveMoles[i].timeoutId);
-        window.hideMole(i);
+        hideMole(i);
       }
 
       document.getElementById('game4-layout-play').style.display = 'none';
@@ -3793,16 +3800,23 @@ html_template = """<!DOCTYPE html>
       document.getElementById('game4-screen-end').classList.add('active');
 
       state.gamesCompleted.game4 = true;
+      
+      if (typeof state.game4BestScore === 'undefined') {
+        state.game4BestScore = 0;
+      }
+      if (game4Score > state.game4BestScore) {
+        state.game4BestScore = game4Score;
+      }
       saveProgress();
 
       let badge = "再接再厲 📝";
-      if (game4Score >= 12) {
+      if (state.game4BestScore >= 24) {
         badge = "資安小達人 👑";
-      } else if (game4Score >= 6) {
+      } else if (state.game4BestScore >= 12) {
         badge = "資安守護者 🛡️";
       }
 
-      document.getElementById('game4-summary-score').innerHTML = "你的最後得分為：<span style='color: var(--primary-green-dark); font-size: 32px; font-weight: 900;'>" + game4Score + " 分</span><br><br><span style='font-size: 20px; font-weight: 800; color: #5D5240;'>獲得稱號：" + badge + "</span>";
+      document.getElementById('game4-summary-score').innerHTML = "你的本次得分為：<span style='color: var(--primary-green-dark); font-size: 32px; font-weight: 900;'>" + game4Score + " 分</span><br>歷史最佳得分：<span style='color: var(--primary-blue-dark); font-size: 24px; font-weight: 800;'>" + state.game4BestScore + " 分</span><br><br><span style='font-size: 20px; font-weight: 800; color: #5D5240;'>獲得稱號：" + badge + "</span>";
 
       // Upload scores to Google Sheet
       const url = state.googleAppScriptUrl || "";
@@ -3821,7 +3835,7 @@ html_template = """<!DOCTYPE html>
           game1Completed: state.gamesCompleted.game1,
           game2RedAlertCount: state.game2.redAlertCount || 0,
           game3ScreenHours: state.game3.timeline.filter(x => x && x.id === 'screen').length,
-          game4Score: game4Score,
+          game4Score: state.game4BestScore,
           progressPercent: 100
         };
 
