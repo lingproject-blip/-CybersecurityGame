@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 
 # Read the base64 string
@@ -1284,6 +1285,10 @@ html_template = """<!DOCTYPE html>
       height: 100%;
     }
 
+    .mole-hole.shaking {
+      z-index: 99;
+    }
+
     .mole-mask {
       position: absolute;
       top: 0;
@@ -1885,7 +1890,7 @@ html_template = """<!DOCTYPE html>
         </div>
 
         <!-- Right Panel (Workspace containing the 3x3 Grid) -->
-        <div class="game-right-panel" style="padding: 20px; display: flex; justify-content: center; align-items: center; flex: 1;">
+        <div class="game-right-panel" style="padding: 20px; display: flex; justify-content: center; align-items: center; flex: 1; overflow: visible;">
           <div class="mole-grid">
             <!-- Hole 0 -->
             <div class="mole-hole">
@@ -3738,7 +3743,7 @@ html_template = """<!DOCTYPE html>
         codeInput.value = state.googleAppScriptCode || "";
       }
       
-      textarea.value = `function doPost(e) {\n  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();\n  var data;\n  try {\n    data = JSON.parse(e.postData.contents);\n  } catch(err) {\n    return ContentService.createTextOutput(JSON.stringify({"status": "error", "message": err.message}))\n      .setMimeType(ContentService.MimeType.JSON);\n  }\n  \n  if (sheet.getLastRow() === 0) {\n    sheet.appendRow(["提交時間", "姓名/座號", "剩餘時間(秒)", "遊戲一完成", "遊戲二紅訊次數", "遊戲三螢幕時間", "打地鼠測驗分數"]);\n  }\n  \n  sheet.appendRow([\n    new Date(),\n    data.studentName,\n    data.timeLeft,\n    data.game1Completed ? "已完成" : "未完成",\n    data.game2RedAlertCount,\n    data.game3ScreenHours + "小時",\n    data.game4Score + "分"\n  ]);\n  \n  return ContentService.createTextOutput(JSON.stringify({"status": "success"}))\n    .setMimeType(ContentService.MimeType.JSON);\n}`;
+      textarea.value = `function doPost(e) {\n  var ss = SpreadsheetApp.getActiveSpreadsheet();\n  var sheet = ss.getSheets()[0];\n  \n  if (sheet.getLastRow() === 0) {\n    sheet.appendRow(["提交時間", "姓名/座號", "剩餘時間(秒)", "遊戲一完成", "遊戲二紅訊次數", "遊戲三螢幕時間", "打地鼠測驗分數"]);\n  }\n  \n  var data;\n  try {\n    if (e && e.postData && e.postData.contents) {\n      data = JSON.parse(e.postData.contents);\n    } else {\n      throw new Error("未接收到資料內容 (postData 為空)");\n    }\n  } catch(err) {\n    sheet.appendRow([new Date(), "❌ 解析資料錯誤", err.message, "請確認網頁發送格式"]);\n    return ContentService.createTextOutput(JSON.stringify({"status": "error", "message": err.message}))\n      .setMimeType(ContentService.MimeType.JSON);\n  }\n  \n  sheet.appendRow([\n    new Date(),\n    data.studentName || "未填寫名字",\n    data.timeLeft !== undefined ? data.timeLeft : "",\n    data.game1Completed ? "已完成" : "未完成",\n    data.game2RedAlertCount !== undefined ? data.game2RedAlertCount : 0,\n    (data.game3ScreenHours !== undefined ? data.game3ScreenHours : 0) + "小時",\n    (data.game4Score !== undefined ? data.game4Score : 0) + "分"\n  ]);\n  \n  return ContentService.createTextOutput(JSON.stringify({"status": "success"}))\n    .setMimeType(ContentService.MimeType.JSON);\n}`;
       
       modal.style.display = 'flex';
       modal.classList.add('active');
@@ -4050,8 +4055,12 @@ html_template = """<!DOCTYPE html>
         // Shake the entire hole cell as haptic/visual feedback
         const hole = mole.closest('.mole-hole');
         if (hole) {
+          hole.classList.add('shaking');
           hole.classList.add('shake-animation');
-          setTimeout(() => hole.classList.remove('shake-animation'), 400);
+          setTimeout(() => {
+            hole.classList.remove('shaking');
+            hole.classList.remove('shake-animation');
+          }, 400);
         }
         
         playBeep(220, 300);
@@ -4178,7 +4187,7 @@ html_template = """<!DOCTYPE html>
           method: 'POST',
           mode: 'no-cors',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'text/plain;charset=utf-8'
           },
           body: JSON.stringify(payload)
         })

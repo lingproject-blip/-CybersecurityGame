@@ -1276,6 +1276,10 @@
       height: 100%;
     }
 
+    .mole-hole.shaking {
+      z-index: 99;
+    }
+
     .mole-mask {
       position: absolute;
       top: 0;
@@ -1877,7 +1881,7 @@
         </div>
 
         <!-- Right Panel (Workspace containing the 3x3 Grid) -->
-        <div class="game-right-panel" style="padding: 20px; display: flex; justify-content: center; align-items: center; flex: 1;">
+        <div class="game-right-panel" style="padding: 20px; display: flex; justify-content: center; align-items: center; flex: 1; overflow: visible;">
           <div class="mole-grid">
             <!-- Hole 0 -->
             <div class="mole-hole">
@@ -3731,27 +3735,34 @@
       }
       
       textarea.value = `function doPost(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var data;
-  try {
-    data = JSON.parse(e.postData.contents);
-  } catch(err) {
-    return ContentService.createTextOutput(JSON.stringify({"status": "error", "message": err.message}))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheets()[0];
   
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(["提交時間", "姓名/座號", "剩餘時間(秒)", "遊戲一完成", "遊戲二紅訊次數", "遊戲三螢幕時間", "打地鼠測驗分數"]);
   }
   
+  var data;
+  try {
+    if (e && e.postData && e.postData.contents) {
+      data = JSON.parse(e.postData.contents);
+    } else {
+      throw new Error("未接收到資料內容 (postData 為空)");
+    }
+  } catch(err) {
+    sheet.appendRow([new Date(), "❌ 解析資料錯誤", err.message, "請確認網頁發送格式"]);
+    return ContentService.createTextOutput(JSON.stringify({"status": "error", "message": err.message}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  
   sheet.appendRow([
     new Date(),
-    data.studentName,
-    data.timeLeft,
+    data.studentName || "未填寫名字",
+    data.timeLeft !== undefined ? data.timeLeft : "",
     data.game1Completed ? "已完成" : "未完成",
-    data.game2RedAlertCount,
-    data.game3ScreenHours + "小時",
-    data.game4Score + "分"
+    data.game2RedAlertCount !== undefined ? data.game2RedAlertCount : 0,
+    (data.game3ScreenHours !== undefined ? data.game3ScreenHours : 0) + "小時",
+    (data.game4Score !== undefined ? data.game4Score : 0) + "分"
   ]);
   
   return ContentService.createTextOutput(JSON.stringify({"status": "success"}))
@@ -4068,8 +4079,12 @@
         // Shake the entire hole cell as haptic/visual feedback
         const hole = mole.closest('.mole-hole');
         if (hole) {
+          hole.classList.add('shaking');
           hole.classList.add('shake-animation');
-          setTimeout(() => hole.classList.remove('shake-animation'), 400);
+          setTimeout(() => {
+            hole.classList.remove('shaking');
+            hole.classList.remove('shake-animation');
+          }, 400);
         }
         
         playBeep(220, 300);
@@ -4196,7 +4211,7 @@
           method: 'POST',
           mode: 'no-cors',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'text/plain;charset=utf-8'
           },
           body: JSON.stringify(payload)
         })
