@@ -1365,15 +1365,28 @@
         <p class="home-subtitle">跟著粉紅果凍人一起挑戰關卡，學習如何保護自己的安全與建立健康習慣吧！</p>
       </div>
 
-      <!-- Name Input Section -->
-      <div style="background: #FFFFFF; border: 4px solid var(--border-color); border-radius: 20px; padding: 12px 20px; margin: 0 0 20px 0; display: flex; align-items: center; justify-content: space-between; box-shadow: 4px 4px 0px var(--border-color); flex-shrink: 0; flex-wrap: wrap; gap: 10px;">
-        <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 280px;">
-          <span style="font-size: 24px;">👤</span>
-          <span style="font-size: 15px; font-weight: 800; color: #5D5240; white-space: nowrap;">姓名或座號：</span>
-          <input type="text" id="student-name-input" placeholder="請在此輸入你的名字或座號" style="padding: 10px 14px; font-size: 15px; font-weight: 800; border: 3px solid var(--border-color); border-radius: 12px; outline: none; width: 100%; max-width: 250px; color: #5D5240;" oninput="saveStudentName(this.value)">
+      <!-- Name Input Section & Backend Connection -->
+      <div style="background: #FFFFFF; border: 4px solid var(--border-color); border-radius: 20px; padding: 15px 20px; margin: 0 0 20px 0; display: flex; flex-direction: column; gap: 12px; box-shadow: 4px 4px 0px var(--border-color); flex-shrink: 0;">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+          <!-- Left Part: Student Name -->
+          <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 280px;">
+            <span style="font-size: 24px;">👤</span>
+            <span style="font-size: 15px; font-weight: 800; color: #5D5240; white-space: nowrap;">姓名或座號：</span>
+            <input type="text" id="student-name-input" placeholder="請在此輸入你的名字或座號" style="padding: 10px 14px; font-size: 15px; font-weight: 800; border: 3px solid var(--border-color); border-radius: 12px; outline: none; width: 100%; max-width: 250px; color: #5D5240;" oninput="saveStudentName(this.value)">
+          </div>
+
+          <!-- Right Part: Connection Code -->
+          <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 300px; justify-content: flex-end;">
+            <span style="font-size: 24px;">🔑</span>
+            <span style="font-size: 15px; font-weight: 800; color: #5D5240; white-space: nowrap;">後台連接碼：</span>
+            <input type="text" id="student-code-input" placeholder="例如: 123456" maxlength="6" style="padding: 10px 14px; font-size: 15px; font-weight: 800; border: 3px solid var(--border-color); border-radius: 12px; outline: none; width: 110px; color: #5D5240; text-align: center; letter-spacing: 1px;" oninput="handleStudentCodeInput(this.value)">
+            <span id="connection-status-text" style="font-size: 13px; font-weight: 800; color: #7A7060;">未連接</span>
+          </div>
         </div>
-        <div style="font-size: 13px; font-weight: 800; color: #7A7060; display: flex; align-items: center; gap: 4px;">
+        
+        <div style="font-size: 13px; font-weight: 800; color: #7A7060; border-top: 2px dashed #E5DEC9; padding-top: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 5px;">
           <span>🎯 請輸入名字後開始挑戰！完成所有關卡，成績將自動上傳後台試算表。</span>
+          <span style="color: var(--primary-blue-dark);" id="student-linked-url-lbl"></span>
         </div>
       </div>
 
@@ -1933,9 +1946,20 @@
           6. 複製產生的「網頁應用程式 URL」，貼到下方輸入框中並點擊儲存：
         </div>
         
-        <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 15px;">
+        <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
           <label style="font-weight: 900; color: #5D5240; font-size: 14px;">Google Apps Script 網頁應用程式 URL：</label>
           <input type="text" id="gas-url-input" placeholder="https://script.google.com/macros/s/.../exec" style="padding: 10px; border: 2.5px solid var(--border-color); border-radius: 12px; font-size: 13.5px; font-weight: 800; outline: none; width: 100%; color: #5D5240;">
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 15px; border-top: 2.5px dashed var(--border-color); padding-top: 15px;">
+          <label style="font-weight: 900; color: #5D5240; font-size: 14px;">🔑 6 位數連接碼（選填，方便學生在首頁輸入連接）：</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="gas-code-input" placeholder="例如: 123456" maxlength="6" style="padding: 10px; border: 2.5px solid var(--border-color); border-radius: 12px; font-size: 13.5px; font-weight: 800; outline: none; flex: 1; color: #5D5240; text-align: center; letter-spacing: 2px;">
+            <button onclick="generateRandomConnectionCode()" style="padding: 10px 14px; font-size: 13.5px; font-weight: 800; background: var(--primary-blue); color: #FFF; border: 2.5px solid var(--border-color); border-radius: 12px; cursor: pointer; white-space: nowrap; border: 2.5px solid var(--border-color);">🎲 隨機產生</button>
+          </div>
+          <p style="font-size: 12px; font-weight: 700; color: #7A7060; margin: 4px 0 0 0; line-height: 1.4;">
+            💡 填寫並儲存後，學生即可在首頁輸入此代碼，快速連接到您的後台，無需手動輸入完整 URL。
+          </p>
         </div>
         
         <div style="display: flex; gap: 15px; justify-content: flex-end;">
@@ -1965,6 +1989,7 @@
     let state = {
       studentName: "",
       googleAppScriptUrl: "",
+      googleAppScriptCode: "",
       game4BestScore: 0,
       gamesCompleted: {
         game1: false,
@@ -2158,13 +2183,19 @@
             state.game3 = parsed.game3 || state.game3;
             state.studentName = parsed.studentName || "";
             state.googleAppScriptUrl = parsed.googleAppScriptUrl || "";
+            state.googleAppScriptCode = parsed.googleAppScriptCode || "";
             state.game4BestScore = parsed.game4BestScore || 0;
             
-            // Sync name input
+            // Sync inputs
             if (state.studentName) {
               const nameInput = document.getElementById('student-name-input');
               if (nameInput) nameInput.value = state.studentName;
             }
+            if (state.googleAppScriptCode) {
+              const codeInput = document.getElementById('student-code-input');
+              if (codeInput) codeInput.value = state.googleAppScriptCode;
+            }
+            setTimeout(updateConnectionUI, 50);
             
             // If the user refreshed inside an active game, restore it
             if (state.activeGame) {
@@ -3570,9 +3601,13 @@
     function openTeacherSettings() {
       const modal = document.getElementById('teacher-settings-modal');
       const input = document.getElementById('gas-url-input');
+      const codeInput = document.getElementById('gas-code-input');
       const textarea = document.getElementById('gas-code-textarea');
       
       input.value = state.googleAppScriptUrl || "";
+      if (codeInput) {
+        codeInput.value = state.googleAppScriptCode || "";
+      }
       
       textarea.value = `function doPost(e) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
@@ -3612,12 +3647,140 @@
       modal.classList.remove('active');
     }
 
+    function generateRandomConnectionCode() {
+      let code = "";
+      for (let i = 0; i < 6; i++) {
+        code += Math.floor(Math.random() * 10);
+      }
+      const codeInput = document.getElementById('gas-code-input');
+      if (codeInput) codeInput.value = code;
+    }
+
     function saveTeacherSettings() {
       const input = document.getElementById('gas-url-input');
-      state.googleAppScriptUrl = input.value.trim();
+      const codeInput = document.getElementById('gas-code-input');
+      const urlVal = input.value.trim();
+      const codeVal = codeInput ? codeInput.value.trim() : "";
+      
+      if (codeVal && !/^\d{6}$/.test(codeVal)) {
+        showModal("連接碼必須為 6 位數字！", "❌", "error");
+        return;
+      }
+      
+      state.googleAppScriptUrl = urlVal;
+      state.googleAppScriptCode = codeVal;
       saveProgress();
+      
+      if (codeVal && urlVal) {
+        fetch(`https://kvs.ix.workers.dev/lingproject_cybersecurity_pwa_v1/${codeVal}`, {
+          method: 'PUT',
+          body: urlVal
+        })
+        .then(res => {
+          if (!res.ok) throw new Error("KV upload failed");
+          console.log("KV upload successful for code:", codeVal);
+        })
+        .catch(err => {
+          console.error("無法同步代碼至雲端：", err);
+        });
+      }
+      
       closeTeacherSettings();
+      updateConnectionUI();
       showSuccessPopup("儲存成功", "後台網址已成功儲存！當學生完成最後的打地鼠測驗時，系統將自動上傳成績至您的 Google 試算表。");
+    }
+
+    function handleStudentCodeInput(val) {
+      const cleanVal = val.trim();
+      if (cleanVal.length === 6) {
+        if (!/^\d{6}$/.test(cleanVal)) {
+          updateConnectionStatus("❌ 格式應為6位數字", "var(--primary-red-dark)");
+          return;
+        }
+        
+        updateConnectionStatus("⏳ 正在連線...", "var(--primary-orange-dark)");
+        
+        fetch(`https://kvs.ix.workers.dev/lingproject_cybersecurity_pwa_v1/${cleanVal}`)
+          .then(res => {
+            if (!res.ok) {
+              if (res.status === 404) {
+                throw new Error("無效的連接碼");
+              }
+              throw new Error("伺服器連線失敗");
+            }
+            return res.text();
+          })
+          .then(url => {
+            const trimmedUrl = url.trim();
+            if (trimmedUrl.startsWith("https://script.google.com/")) {
+              state.googleAppScriptUrl = trimmedUrl;
+              state.googleAppScriptCode = cleanVal;
+              saveProgress();
+              updateConnectionUI();
+              showModal("🎉 成功連接至教師後台試算表！", "✨", "success");
+            } else {
+              throw new Error("讀取網址錯誤");
+            }
+          })
+          .catch(err => {
+            console.error("連接錯誤：", err);
+            updateConnectionStatus("❌ 連接碼無效", "var(--primary-red-dark)");
+            state.googleAppScriptUrl = "";
+            state.googleAppScriptCode = "";
+            saveProgress();
+            const linkedLbl = document.getElementById('student-linked-url-lbl');
+            if (linkedLbl) linkedLbl.textContent = "";
+          });
+      } else {
+        if (cleanVal.length === 0) {
+          state.googleAppScriptUrl = "";
+          state.googleAppScriptCode = "";
+          saveProgress();
+          updateConnectionUI();
+        } else {
+          updateConnectionStatus("請輸入 6 位數字...", "#7A7060");
+        }
+      }
+    }
+
+    function updateConnectionUI() {
+      const codeInput = document.getElementById('student-code-input');
+      const statusText = document.getElementById('connection-status-text');
+      const linkedLbl = document.getElementById('student-linked-url-lbl');
+      
+      if (codeInput) {
+        codeInput.value = state.googleAppScriptCode || "";
+      }
+      
+      if (state.googleAppScriptUrl && state.googleAppScriptUrl.startsWith("https://script.google.com/")) {
+        if (statusText) {
+          statusText.textContent = "✅ 已連接";
+          statusText.style.color = "var(--primary-green-dark)";
+        }
+        if (linkedLbl) {
+          if (state.googleAppScriptCode) {
+            linkedLbl.textContent = "🔗 已綁定代碼：" + state.googleAppScriptCode;
+          } else {
+            linkedLbl.textContent = "🔗 已手動綁定後台網址";
+          }
+        }
+      } else {
+        if (statusText) {
+          statusText.textContent = "未連接";
+          statusText.style.color = "#7A7060";
+        }
+        if (linkedLbl) {
+          linkedLbl.textContent = "";
+        }
+      }
+    }
+
+    function updateConnectionStatus(text, color) {
+      const statusText = document.getElementById('connection-status-text');
+      if (statusText) {
+        statusText.textContent = text;
+        statusText.style.color = color;
+      }
     }
 
     function copyGasCode() {
