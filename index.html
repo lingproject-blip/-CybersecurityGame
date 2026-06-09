@@ -1251,85 +1251,172 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       grid-template-rows: repeat(3, 1fr);
-      gap: 15px;
+      gap: 20px;
       width: 100%;
       height: 100%;
-      max-width: 460px;
-      max-height: 460px;
+      max-width: 580px;
+      max-height: 580px;
       aspect-ratio: 1;
-      padding: 15px;
-      background: #73C6B6; /* Cute Teal Grass color */
+      padding: 24px;
+      background: radial-gradient(circle, #8EDAD0, #56AEA0); /* Premium Teal Grass Gradient */
       border: 4px solid var(--border-color);
-      border-radius: 24px;
-      box-shadow: inset 4px 4px 10px rgba(0,0,0,0.15), 4px 4px 0px var(--border-color);
+      border-radius: 32px;
+      box-shadow: inset 4px 4px 12px rgba(0,0,0,0.15), 6px 6px 0px var(--border-color);
     }
     
     .mole-hole {
       position: relative;
-      background: #4A3E3D; /* Dark hole background */
+      background: radial-gradient(circle at center, #2C1A1A 60%, #150F0E 100%); /* Deep dark ground depth */
       border: 4px solid var(--border-color);
-      border-radius: 50% / 30%;
-      overflow: visible; /* Need overflow visible so sign can stick out */
-      box-shadow: inset 0px 6px 0px rgba(0,0,0,0.4);
+      border-radius: 50% / 35%; /* Smooth rounded oval shape */
+      overflow: visible; /* Sign can pop out because the character itself is masked */
+      box-shadow: inset 0px 8px 10px rgba(0,0,0,0.6);
       display: flex;
       justify-content: center;
       height: 100%;
     }
+
+    .mole-mask {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden; /* This masks the mole when it retreats! */
+      border-radius: 50% / 35%;
+      z-index: 2;
+      pointer-events: none; /* Let clicks pass to the mole inside */
+    }
     
     .mole-character {
-      width: 72px;
-      height: 80px;
-      background: #C67844;
+      width: 82px;
+      height: 95px;
+      background: linear-gradient(135deg, #DE9C68, #A96131);
       border: 4px solid var(--border-color);
-      border-radius: 36px 36px 0 0;
+      border-radius: 42px 42px 0 0;
       position: absolute;
-      bottom: -85px;
-      transition: bottom 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      bottom: -110px; /* Hidden below the hole bottom */
+      left: 50%;
+      transform: translateX(-50%);
+      transition: bottom 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.25);
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding-top: 10px;
+      padding-top: 15px;
       z-index: 2;
+      pointer-events: auto; /* Enable clicking */
+    }
+
+    /* Cute Ears for the Mole */
+    .mole-character::before {
+      content: "";
+      position: absolute;
+      left: 10px;
+      top: -8px;
+      width: 18px;
+      height: 18px;
+      background: #A96131;
+      border: 3.5px solid var(--border-color);
+      border-radius: 50%;
+      z-index: -1;
+    }
+    
+    .mole-character::after {
+      content: "";
+      position: absolute;
+      right: 10px;
+      top: -8px;
+      width: 18px;
+      height: 18px;
+      background: #A96131;
+      border: 3.5px solid var(--border-color);
+      border-radius: 50%;
+      z-index: -1;
     }
     
     .mole-character.up {
-      bottom: 15px;
+      bottom: 15px; /* Fully visible, standing tall */
     }
     
     .mole-character.whacked {
-      transform: scale(0.9);
+      transform: translateX(-50%) scale(0.9) translateY(5px);
+    }
+    
+    /* Cute Facial Features styling */
+    .mole-face {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 4px;
+      z-index: 5;
+    }
+
+    .mole-eye {
+      width: 10px;
+      height: 10px;
+      background: #000000;
+      border-radius: 50%;
+      position: relative;
+    }
+
+    .mole-eye::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 3.5px;
+      height: 3.5px;
+      background: #FFFFFF;
+      border-radius: 50%;
+    }
+
+    .mole-nose {
+      width: 14px;
+      height: 8px;
+      background: #FF8A8A; /* Pink cute nose */
+      border: 2.5px solid var(--border-color);
+      border-radius: 50%;
+      margin-top: 2px;
+      z-index: 5;
     }
     
     .mole-dirt-cover {
-      width: 106%;
-      height: 30px;
-      background: #87613F; /* Dirt color */
+      width: 108%;
+      height: 32px;
+      background: linear-gradient(180deg, #A27653, #785233); /* Beautiful dirt gradient */
       border-top: 4px solid var(--border-color);
-      border-radius: 0 0 50% 50% / 0 0 30% 30%;
+      border-radius: 0 0 50% 50% / 0 0 35% 35%;
       position: absolute;
       bottom: -4px;
-      left: -3%;
+      left: -4%;
       z-index: 3;
       pointer-events: none;
     }
     
     .mole-sign {
       position: absolute;
-      top: -55px; /* Sits above the mole's head */
+      top: -72px; /* Adjusted position for larger font */
       background: #FFFFFF;
-      border: 3px solid var(--border-color);
-      border-radius: 12px;
-      padding: 6px 8px;
-      font-size: 11px;
-      font-weight: 800;
-      width: 130px;
+      border: 3.5px solid var(--border-color);
+      border-radius: 14px;
+      padding: 8px 12px;
+      font-size: 14px; /* Enlarged font for options */
+      font-weight: 900;
+      width: 165px; /* Extra width to look clean and neat */
       text-align: center;
-      box-shadow: 3px 3px 0px var(--border-color);
+      box-shadow: 4px 4px 0px var(--border-color);
       pointer-events: none;
       word-break: break-all;
       line-height: 1.4;
       z-index: 10;
+      opacity: 0;
+      transform: scale(0.7) translateY(15px);
+      transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.25);
+    }
+
+    .mole-sign.up {
+      opacity: 1;
+      transform: scale(1) translateY(0);
     }
     
     .game-card.locked {
@@ -1790,110 +1877,128 @@
           <div class="mole-grid">
             <!-- Hole 0 -->
             <div class="mole-hole">
-              <div class="mole-character" id="mole-0" onclick="whackMole(0)">
-                <div class="mole-sign" id="mole-sign-0"></div>
-                <div class="mole-face">
-                  <div class="mole-eye"></div>
-                  <div class="mole-eye"></div>
+              <div class="mole-mask">
+                <div class="mole-character" id="mole-0" onclick="whackMole(0)">
+                  <div class="mole-face">
+                    <div class="mole-eye"></div>
+                    <div class="mole-eye"></div>
+                  </div>
+                  <div class="mole-nose"></div>
                 </div>
-                <div class="mole-nose"></div>
               </div>
+              <div class="mole-sign" id="mole-sign-0"></div>
               <div class="mole-dirt-cover"></div>
             </div>
             <!-- Hole 1 -->
             <div class="mole-hole">
-              <div class="mole-character" id="mole-1" onclick="whackMole(1)">
-                <div class="mole-sign" id="mole-sign-1"></div>
-                <div class="mole-face">
-                  <div class="mole-eye"></div>
-                  <div class="mole-eye"></div>
+              <div class="mole-mask">
+                <div class="mole-character" id="mole-1" onclick="whackMole(1)">
+                  <div class="mole-face">
+                    <div class="mole-eye"></div>
+                    <div class="mole-eye"></div>
+                  </div>
+                  <div class="mole-nose"></div>
                 </div>
-                <div class="mole-nose"></div>
               </div>
+              <div class="mole-sign" id="mole-sign-1"></div>
               <div class="mole-dirt-cover"></div>
             </div>
             <!-- Hole 2 -->
             <div class="mole-hole">
-              <div class="mole-character" id="mole-2" onclick="whackMole(2)">
-                <div class="mole-sign" id="mole-sign-2"></div>
-                <div class="mole-face">
-                  <div class="mole-eye"></div>
-                  <div class="mole-eye"></div>
+              <div class="mole-mask">
+                <div class="mole-character" id="mole-2" onclick="whackMole(2)">
+                  <div class="mole-face">
+                    <div class="mole-eye"></div>
+                    <div class="mole-eye"></div>
+                  </div>
+                  <div class="mole-nose"></div>
                 </div>
-                <div class="mole-nose"></div>
               </div>
+              <div class="mole-sign" id="mole-sign-2"></div>
               <div class="mole-dirt-cover"></div>
             </div>
             <!-- Hole 3 -->
             <div class="mole-hole">
-              <div class="mole-character" id="mole-3" onclick="whackMole(3)">
-                <div class="mole-sign" id="mole-sign-3"></div>
-                <div class="mole-face">
-                  <div class="mole-eye"></div>
-                  <div class="mole-eye"></div>
+              <div class="mole-mask">
+                <div class="mole-character" id="mole-3" onclick="whackMole(3)">
+                  <div class="mole-face">
+                    <div class="mole-eye"></div>
+                    <div class="mole-eye"></div>
+                  </div>
+                  <div class="mole-nose"></div>
                 </div>
-                <div class="mole-nose"></div>
               </div>
+              <div class="mole-sign" id="mole-sign-3"></div>
               <div class="mole-dirt-cover"></div>
             </div>
             <!-- Hole 4 -->
             <div class="mole-hole">
-              <div class="mole-character" id="mole-4" onclick="whackMole(4)">
-                <div class="mole-sign" id="mole-sign-4"></div>
-                <div class="mole-face">
-                  <div class="mole-eye"></div>
-                  <div class="mole-eye"></div>
+              <div class="mole-mask">
+                <div class="mole-character" id="mole-4" onclick="whackMole(4)">
+                  <div class="mole-face">
+                    <div class="mole-eye"></div>
+                    <div class="mole-eye"></div>
+                  </div>
+                  <div class="mole-nose"></div>
                 </div>
-                <div class="mole-nose"></div>
               </div>
+              <div class="mole-sign" id="mole-sign-4"></div>
               <div class="mole-dirt-cover"></div>
             </div>
             <!-- Hole 5 -->
             <div class="mole-hole">
-              <div class="mole-character" id="mole-5" onclick="whackMole(5)">
-                <div class="mole-sign" id="mole-sign-5"></div>
-                <div class="mole-face">
-                  <div class="mole-eye"></div>
-                  <div class="mole-eye"></div>
+              <div class="mole-mask">
+                <div class="mole-character" id="mole-5" onclick="whackMole(5)">
+                  <div class="mole-face">
+                    <div class="mole-eye"></div>
+                    <div class="mole-eye"></div>
+                  </div>
+                  <div class="mole-nose"></div>
                 </div>
-                <div class="mole-nose"></div>
               </div>
+              <div class="mole-sign" id="mole-sign-5"></div>
               <div class="mole-dirt-cover"></div>
             </div>
             <!-- Hole 6 -->
             <div class="mole-hole">
-              <div class="mole-character" id="mole-6" onclick="whackMole(6)">
-                <div class="mole-sign" id="mole-sign-6"></div>
-                <div class="mole-face">
-                  <div class="mole-eye"></div>
-                  <div class="mole-eye"></div>
+              <div class="mole-mask">
+                <div class="mole-character" id="mole-6" onclick="whackMole(6)">
+                  <div class="mole-face">
+                    <div class="mole-eye"></div>
+                    <div class="mole-eye"></div>
+                  </div>
+                  <div class="mole-nose"></div>
                 </div>
-                <div class="mole-nose"></div>
               </div>
+              <div class="mole-sign" id="mole-sign-6"></div>
               <div class="mole-dirt-cover"></div>
             </div>
             <!-- Hole 7 -->
             <div class="mole-hole">
-              <div class="mole-character" id="mole-7" onclick="whackMole(7)">
-                <div class="mole-sign" id="mole-sign-7"></div>
-                <div class="mole-face">
-                  <div class="mole-eye"></div>
-                  <div class="mole-eye"></div>
+              <div class="mole-mask">
+                <div class="mole-character" id="mole-7" onclick="whackMole(7)">
+                  <div class="mole-face">
+                    <div class="mole-eye"></div>
+                    <div class="mole-eye"></div>
+                  </div>
+                  <div class="mole-nose"></div>
                 </div>
-                <div class="mole-nose"></div>
               </div>
+              <div class="mole-sign" id="mole-sign-7"></div>
               <div class="mole-dirt-cover"></div>
             </div>
             <!-- Hole 8 -->
             <div class="mole-hole">
-              <div class="mole-character" id="mole-8" onclick="whackMole(8)">
-                <div class="mole-sign" id="mole-sign-8"></div>
-                <div class="mole-face">
-                  <div class="mole-eye"></div>
-                  <div class="mole-eye"></div>
+              <div class="mole-mask">
+                <div class="mole-character" id="mole-8" onclick="whackMole(8)">
+                  <div class="mole-face">
+                    <div class="mole-eye"></div>
+                    <div class="mole-eye"></div>
+                  </div>
+                  <div class="mole-nose"></div>
                 </div>
-                <div class="mole-nose"></div>
               </div>
+              <div class="mole-sign" id="mole-sign-8"></div>
               <div class="mole-dirt-cover"></div>
             </div>
           </div>
@@ -2029,27 +2134,27 @@
 
     // Whack-a-Mole statements
     const moleStatements = [
-      { text: "🛡️ 不透露身分證字號與地址", isCorrect: true },
-      { text: "🛡️ 密碼複雜且不隨意分享", isCorrect: true },
-      { text: "🛡️ 收到可疑簡訊先撥打165", isCorrect: true },
-      { text: "🛡️ 用溫暖同理心與網友聊天", isCorrect: true },
-      { text: "🛡️ 控制玩手機時間適度休息", isCorrect: true },
-      { text: "🛡️ 網友約見面先告知父母", isCorrect: true },
-      { text: "🛡️ 只從官方商店安全下載軟體", isCorrect: true },
-      { text: "🛡️ 尊重他人隱私不散布照片", isCorrect: true },
-      { text: "🛡️ 不隨便點擊未知連結信件", isCorrect: true },
-      { text: "🛡️ 懷疑被詐騙立刻尋求大人協助", isCorrect: true },
+      { text: "不透露身分證字號與地址", isCorrect: true },
+      { text: "密碼複雜且不隨意分享", isCorrect: true },
+      { text: "收到可疑簡訊先撥打165", isCorrect: true },
+      { text: "用溫暖同理心與網友聊天", isCorrect: true },
+      { text: "控制玩手機時間適度休息", isCorrect: true },
+      { text: "網友約見面先告知父母", isCorrect: true },
+      { text: "只從官方商店安全下載軟體", isCorrect: true },
+      { text: "尊重他人隱私不散布照片", isCorrect: true },
+      { text: "不隨便點擊未知連結信件", isCorrect: true },
+      { text: "懷疑被詐騙立刻尋求大人協助", isCorrect: true },
       
-      { text: "❌ 密碼設成生日比較好記", isCorrect: false },
-      { text: "❌ 為了拿虛寶提供帳號密碼", isCorrect: false },
-      { text: "❌ 網友說會保密就拍私密照", isCorrect: false },
-      { text: "❌ 躲在鍵盤後面罵人沒關係", isCorrect: false },
-      { text: "❌ 網友約見面偷偷帶同學去", isCorrect: false },
-      { text: "❌ 簡訊好康連結點進去就對了", isCorrect: false },
-      { text: "❌ 每天熬夜玩手機不睡覺", isCorrect: false },
-      { text: "❌ 隨意下載修改器與免費外掛", isCorrect: false },
-      { text: "❌ 在聊天室大方洩漏校名班級", isCorrect: false },
-      { text: "❌ 相信網友會買貴重禮物送我", isCorrect: false }
+      { text: "密碼設成生日比較好記", isCorrect: false },
+      { text: "為了拿虛寶提供帳號密碼", isCorrect: false },
+      { text: "網友說會保密就拍私密照", isCorrect: false },
+      { text: "躲在鍵盤後面罵人沒關係", isCorrect: false },
+      { text: "網友約見面偷偷帶同學去", isCorrect: false },
+      { text: "簡訊好康連結點進去就對了", isCorrect: false },
+      { text: "每天熬夜玩手機不睡覺", isCorrect: false },
+      { text: "隨意下載修改器與免費外掛", isCorrect: false },
+      { text: "在聊天室大方洩漏校名班級", isCorrect: false },
+      { text: "相信網友會買貴重禮物送我", isCorrect: false }
     ];
 
     let timerInterval = null;
@@ -3846,6 +3951,8 @@
     function hideMole(index) {
       const mole = document.getElementById('mole-' + index);
       if (mole) mole.classList.remove('up');
+      const sign = document.getElementById('mole-sign-' + index);
+      if (sign) sign.classList.remove('up');
       game4ActiveMoles[index] = null;
     }
 
@@ -3868,8 +3975,9 @@
       const sign = document.getElementById('mole-sign-' + holeIndex);
       
       sign.textContent = statement.text;
-      mole.style.backgroundColor = '#C67844';
+      mole.style.background = 'linear-gradient(135deg, #DE9C68, #A96131)';
       mole.classList.add('up');
+      if (sign) sign.classList.add('up');
       mole.classList.remove('whacked');
 
       const timeoutId = setTimeout(() => {
