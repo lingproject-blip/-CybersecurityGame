@@ -2588,6 +2588,9 @@ html_template = """<!DOCTYPE html>
         setupGame3Selector();
         updateGame3Stats();
       } else if (gameId === 'game4') {
+        // Game 4 has its own 60s timer — hide the shared global timer
+        document.getElementById('global-timer-container').style.visibility = 'hidden';
+        stopTimer();
         startGame4();
       }
       saveProgress();
