@@ -2430,7 +2430,7 @@ html_template = """<!DOCTYPE html>
       
       // Stop Game 4 intervals if running
       if (typeof game4TimerInterval !== 'undefined') clearInterval(game4TimerInterval);
-      if (typeof game4SpawnInterval !== 'undefined') clearInterval(game4SpawnInterval);
+      if (typeof game4SpawnInterval !== 'undefined') clearTimeout(game4SpawnInterval);
       if (typeof game4ActiveMoles !== 'undefined') {
         for (let i = 0; i < 9; i++) {
           if (game4ActiveMoles[i]) clearTimeout(game4ActiveMoles[i].timeoutId);
@@ -3921,13 +3921,21 @@ html_template = """<!DOCTYPE html>
         }
       }, 1000);
 
-      // Mole spawn timer
-      game4SpawnInterval = setInterval(() => {
-        const countToSpawn = Math.random() > 0.6 ? 2 : 1;
-        for (let k = 0; k < countToSpawn; k++) {
+      // Adaptive mole spawn timer — starts slow, accelerates over time
+      function scheduleNextSpawn() {
+        // timeLeft goes 60→0; progress goes 0→1 as game advances
+        const progress = 1 - (game4TimeLeft / 60);
+        // Spawn interval: 2000ms at start → 800ms at end
+        const spawnDelay = Math.round(2000 - progress * 1200);
+        game4SpawnInterval = setTimeout(() => {
+          if (game4TimeLeft <= 0) return;
           spawnMole();
-        }
-      }, 1100);
+          // After 30 s, occasionally spawn a 2nd mole simultaneously
+          if (progress > 0.5 && Math.random() > 0.6) spawnMole();
+          scheduleNextSpawn();
+        }, spawnDelay);
+      }
+      scheduleNextSpawn();
     }
 
     function hideMole(index) {
@@ -3962,9 +3970,12 @@ html_template = """<!DOCTYPE html>
       if (sign) sign.classList.add('up');
       mole.classList.remove('whacked');
 
+      // Visible duration: 3800ms at start → 1800ms at end
+      const progress = 1 - (game4TimeLeft / 60);
+      const visibleDuration = Math.round(3800 - progress * 2000);
       const timeoutId = setTimeout(() => {
         hideMole(holeIndex);
-      }, 2400);
+      }, visibleDuration);
 
       game4ActiveMoles[holeIndex] = {
         isCorrect: statement.isCorrect,
@@ -4059,7 +4070,7 @@ html_template = """<!DOCTYPE html>
 
     function endGame4() {
       clearInterval(game4TimerInterval);
-      clearInterval(game4SpawnInterval);
+      clearTimeout(game4SpawnInterval);
       
       for (let i = 0; i < 9; i++) {
         if (game4ActiveMoles[i]) clearTimeout(game4ActiveMoles[i].timeoutId);
